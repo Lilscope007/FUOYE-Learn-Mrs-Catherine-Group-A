@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the application",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "xp": { "type": "number" },
+        "streak": { "type": "number" },
+        "lastPracticeDate": { "type": "string", "format": "date-time" },
+        "currentCourseId": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] }
+      },
+      "required": ["uid", "email", "xp", "streak", "role"]
+    },
+    "Course": {
+      "title": "Course",
+      "description": "A language course",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "language": { "type": "string" },
+        "icon": { "type": "string" }
+      },
+      "required": ["title", "language"]
+    },
+    "Unit": {
+      "title": "Unit",
+      "description": "A unit within a course",
+      "type": "object",
+      "properties": {
+        "courseId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["courseId", "title", "order"]
+    },
+    "Lesson": {
+      "title": "Lesson",
+      "description": "A lesson within a unit",
+      "type": "object",
+      "properties": {
+        "unitId": { "type": "string" },
+        "title": { "type": "string" },
+        "topic": { "type": "string" },
+        "order": { "type": "number" },
+        "xpReward": { "type": "number" }
+      },
+      "required": ["unitId", "title", "topic", "order", "xpReward"]
+    },
+    "UserProgress": {
+      "title": "UserProgress",
+      "description": "Tracks user progress in courses",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "completedLessons": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["userId", "completedLessons"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles"
+    },
+    "/courses/{courseId}": {
+      "schema": { "$ref": "#/entities/Course" },
+      "description": "Available courses"
+    },
+    "/units/{unitId}": {
+      "schema": { "$ref": "#/entities/Unit" },
+      "description": "Units for courses"
+    },
+    "/lessons/{lessonId}": {
+      "schema": { "$ref": "#/entities/Lesson" },
+      "description": "Lessons for units"
+    },
+    "/userProgress/{progressId}": {
+      "schema": { "$ref": "#/entities/UserProgress" },
+      "description": "User progress tracking. Document ID is usually the userId."
+    }
+  }
+}
