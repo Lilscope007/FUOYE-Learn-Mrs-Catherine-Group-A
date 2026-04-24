@@ -1,51 +1,36 @@
 import { useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { setUser, setProfile, setAuthReady } = useAuthStore();
+  const { setProfile, setAuthReady } = useAuthStore();
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      
-      if (firebaseUser) {
-        // Check if user profile exists, if not create it
-        const userRef = doc(db, 'users', firebaseUser.uid);
-        const userSnap = await getDoc(userRef);
-        
-        if (!userSnap.exists()) {
-          const newProfile = {
-            uid: firebaseUser.uid,
-            email: firebaseUser.email || '',
-            displayName: firebaseUser.displayName || '',
-            photoURL: firebaseUser.photoURL || '',
-            xp: 0,
-            streak: 0,
-            role: 'user' as const,
-          };
-          await setDoc(userRef, newProfile);
+    let mounted = true;
+
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/user/me');
+        if (res.ok) {
+          const user = await res.json();
+          if (mounted) setProfile(user);
+        } else {
+          if (mounted) setProfile(null);
         }
-
-        // Listen to profile changes
-        const unsubscribeProfile = onSnapshot(userRef, (doc) => {
-          if (doc.exists()) {
-            setProfile(doc.data() as any);
-          }
-        });
-
-        setAuthReady(true);
-        return () => unsubscribeProfile();
-      } else {
-        setProfile(null);
-        setAuthReady(true);
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        if (mounted) setProfile(null);
+      } finally {
+        if (mounted) setAuthReady(true);
       }
-    });
+    }
 
-    return () => unsubscribeAuth();
-  }, [setUser, setProfile, setAuthReady]);
+    checkAuth();
+
+    return () => {
+      mounted = false;
+    };
+  }, [setProfile, setAuthReady]);
 
   return <>{children}</>;
 }
+

@@ -1,16 +1,13 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, doc, updateDoc, query, orderBy } from 'firebase/firestore';
-import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import { Star, CheckCircle, Lock, BellRing } from 'lucide-react';
 
 export default function Dashboard() {
-  const { profile } = useAuthStore();
+  const { profile, setProfile } = useAuthStore();
   const [courses, setCourses] = useState<any[]>([]);
   const [units, setUnits] = useState<any[]>([]);
   const [lessons, setLessons] = useState<any[]>([]);
-  const [progress, setProgress] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -20,29 +17,19 @@ export default function Dashboard() {
 
       try {
         if (!profile.currentCourseId) {
-          const coursesSnap = await getDocs(collection(db, 'courses'));
-          setCourses(coursesSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+          const res = await fetch('/api/courses');
+          if (res.ok) setCourses(await res.json());
         } else {
-          // Fetch units for current course
-          const unitsQ = query(collection(db, 'units'), orderBy('order'));
-          const unitsSnap = await getDocs(unitsQ);
-          const courseUnits = unitsSnap.docs
-            .map(d => ({ id: d.id, ...d.data() }))
-            .filter((u: any) => u.courseId === profile.currentCourseId);
-          setUnits(courseUnits);
-
-          // Fetch lessons
-          const lessonsQ = query(collection(db, 'lessons'), orderBy('order'));
-          const lessonsSnap = await getDocs(lessonsQ);
-          setLessons(lessonsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
-
-          // Fetch progress
-          const progSnap = await getDocs(collection(db, 'userProgress'));
-          const userProg = progSnap.docs.find(d => d.id === profile.uid || d.data().userId === profile.uid);
-          if (userProg) {
-            setProgress(userProg.data());
-          } else {
-            setProgress({ completedLessons: [] });
+          const [uRes, lRes] = await Promise.all([
+            fetch('/api/units'),
+            fetch('/api/lessons')
+          ]);
+          
+          if (uRes.ok && lRes.ok) {
+            const allUnits = await uRes.json();
+            const courseUnits = allUnits.filter((u: any) => u.courseId === profile.currentCourseId);
+            setUnits(courseUnits);
+            setLessons(await lRes.json());
           }
         }
       } catch (error) {
@@ -56,9 +43,16 @@ export default function Dashboard() {
 
   const selectCourse = async (courseId: string) => {
     if (!profile) return;
-    await updateDoc(doc(db, 'users', profile.uid), {
-      currentCourseId: courseId
-    });
+    try {
+      await fetch('/api/user/course', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseId })
+      });
+      setProfile({ ...profile, currentCourseId: courseId });
+    } catch (error) {
+      console.error('Failed to select course:', error);
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -126,10 +120,10 @@ export default function Dashboard() {
               
               <div className="flex flex-col items-center gap-8 py-4">
                 {unitLessons.map((lesson, index) => {
-                  const isCompleted = progress?.completedLessons?.includes(lesson.id);
+                  const isCompleted = profile?.completedLessons?.includes(lesson.id);
                   // Determine if unlocked (first lesson or previous is completed)
                   const prevLesson = index > 0 ? unitLessons[index - 1] : null;
-                  const isUnlocked = isCompleted || !prevLesson || progress?.completedLessons?.includes(prevLesson.id);
+                  const isUnlocked = isCompleted || !prevLesson || profile?.completedLessons?.includes(prevLesson.id);
                   
                   // Calculate offset for zig-zag pattern
                   const offset = Math.sin(index * 1.5) * 40;

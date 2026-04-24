@@ -1,21 +1,26 @@
 import { useAuthStore } from '../store/authStore';
 import { User, Star, Zap, Award, BookOpen } from 'lucide-react';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
 import { useNavigate } from 'react-router-dom';
 
 export default function ProfilePage() {
-  const { profile, user } = useAuthStore();
+  const { profile, setProfile } = useAuthStore();
   const navigate = useNavigate();
 
   if (!profile) return null;
 
   const handleChangeCourse = async () => {
     if (!profile) return;
-    await updateDoc(doc(db, 'users', profile.uid), {
-      currentCourseId: null
-    });
-    navigate('/app');
+    try {
+      await fetch('/api/user/course', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseId: null })
+      });
+      setProfile({ ...profile, currentCourseId: undefined });
+      navigate('/app');
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -31,7 +36,7 @@ export default function ProfilePage() {
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-slate-700">{profile.displayName || 'Learner'}</h1>
           <p className="text-slate-500">{profile.email}</p>
-          <p className="text-sm text-slate-400 mt-1">Joined {user?.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'recently'}</p>
+          <p className="text-sm text-slate-400 mt-1">Joined recently</p>
         </div>
         <button 
           onClick={handleChangeCourse}

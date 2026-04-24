@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, query, orderBy, writeBatch, doc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { Navigate } from 'react-router-dom';
 
@@ -19,11 +17,11 @@ export default function AdminPage() {
   }, [profile]);
 
   const fetchData = async () => {
-    const cSnap = await getDocs(collection(db, 'courses'));
-    setCourses(cSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+    const cRes = await fetch('/api/courses');
+    if (cRes.ok) setCourses(await cRes.json());
     
-    const uSnap = await getDocs(query(collection(db, 'units'), orderBy('order')));
-    setUnits(uSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+    const uRes = await fetch('/api/units');
+    if (uRes.ok) setUnits(await uRes.json());
   };
 
   if (profile?.role !== 'admin') {
@@ -32,21 +30,33 @@ export default function AdminPage() {
 
   const handleAddCourse = async (e: React.FormEvent) => {
     e.preventDefault();
-    await addDoc(collection(db, 'courses'), newCourse);
+    await fetch('/api/courses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newCourse)
+    });
     setNewCourse({ title: '', language: '', icon: '', description: '' });
     fetchData();
   };
 
   const handleAddUnit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await addDoc(collection(db, 'units'), newUnit);
+    await fetch('/api/units', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUnit)
+    });
     setNewUnit({ courseId: '', title: '', description: '', order: newUnit.order + 1 });
     fetchData();
   };
 
   const handleAddLesson = async (e: React.FormEvent) => {
     e.preventDefault();
-    await addDoc(collection(db, 'lessons'), newLesson);
+    await fetch('/api/lessons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newLesson)
+    });
     setNewLesson({ ...newLesson, title: '', topic: '', order: newLesson.order + 1 });
     alert('Lesson added!');
   };
@@ -55,85 +65,7 @@ export default function AdminPage() {
     if (!window.confirm('This will add all FUOYE courses. Continue?')) return;
     
     try {
-      const batch = writeBatch(db);
-      
-      const fuoyePrograms = [
-        { title: 'Computer Science', language: 'Faculty of Science', icon: '💻', description: 'Study of computation, algorithms, and software.' },
-        { title: 'Mechanical Engineering', language: 'Faculty of Engineering', icon: '⚙️', description: 'Design, analyze, and manufacture mechanical systems.' },
-        { title: 'Accounting', language: 'Faculty of Management Sciences', icon: '📊', description: 'Principles of finance, auditing, and financial reporting.' },
-        { title: 'Mass Communication', language: 'Faculty of Social Sciences', icon: '📻', description: 'Journalism, broadcasting, and public relations.' },
-        { title: 'Law', language: 'Faculty of Law', icon: '⚖️', description: 'Study of legal systems, rights, and jurisprudence.' },
-        { title: 'Medicine and Surgery', language: 'Faculty of Clinical Sciences', icon: '🩺', description: 'Medical practice, diagnosis, and treatment.' },
-        { title: 'Nursing Science', language: 'Faculty of Basic Medical Sciences', icon: '⚕️', description: 'Patient care and clinical nursing.' },
-        { title: 'Architecture', language: 'Faculty of Environmental Design', icon: '🏛️', description: 'Design and planning of buildings and spaces.' },
-        { title: 'Agriculture', language: 'Faculty of Agriculture', icon: '🌾', description: 'Crop production, animal husbandry, and soil science.' },
-        { title: 'English and Literary Studies', language: 'Faculty of Arts', icon: '📚', description: 'Study of literature, linguistics, and English language.' },
-        { title: 'Theatre Arts', language: 'Faculty of Arts', icon: '🎭', description: 'Performing arts, drama, and stage production.' },
-        { title: 'Civil Engineering', language: 'Faculty of Engineering', icon: '🏗️', description: 'Infrastructure design and construction.' },
-        { title: 'Electrical/Electronics Engineering', language: 'Faculty of Engineering', icon: '🔌', description: 'Study of electrical systems and electronics.' },
-        { title: 'Mechatronics Engineering', language: 'Faculty of Engineering', icon: '🤖', description: 'Integration of mechanical and electronic systems.' },
-        { title: 'Business Administration', language: 'Faculty of Management Sciences', icon: '💼', description: 'Business management and organizational strategy.' },
-        { title: 'Public Administration', language: 'Faculty of Management Sciences', icon: '🏢', description: 'Government policy and public sector management.' },
-        { title: 'Economics', language: 'Faculty of Social Sciences', icon: '📈', description: 'Study of production, consumption, and wealth transfer.' },
-        { title: 'Political Science', language: 'Faculty of Social Sciences', icon: '🗳️', description: 'Systems of governance and political behavior.' },
-        { title: 'Sociology', language: 'Faculty of Social Sciences', icon: '👥', description: 'Study of society, social institutions, and relationships.' },
-        { title: 'Psychology', language: 'Faculty of Social Sciences', icon: '🧠', description: 'Scientific study of the mind and behavior.' },
-        { title: 'Microbiology', language: 'Faculty of Science', icon: '🔬', description: 'Study of microscopic organisms.' },
-        { title: 'Biochemistry', language: 'Faculty of Science', icon: '🧬', description: 'Chemical processes within living organisms.' },
-        { title: 'Geophysics', language: 'Faculty of Science', icon: '🌍', description: 'Physics of the Earth and its environment.' },
-        { title: 'Pharmacy', language: 'Faculty of Pharmacy', icon: '💊', description: 'Preparation and dispensing of medicinal drugs.' },
-        { title: 'Library and Information Science', language: 'Faculty of Education', icon: '📖', description: 'Information management and library operations.' }
-      ];
-
-      let cscCourseRef = null;
-
-      for (const prog of fuoyePrograms) {
-        const courseRef = doc(collection(db, 'courses'));
-        batch.set(courseRef, prog);
-        if (prog.title === 'Computer Science') {
-          cscCourseRef = courseRef;
-        }
-      }
-
-      // Add sample units and lessons for Computer Science
-      if (cscCourseRef) {
-        const unit1Ref = doc(collection(db, 'units'));
-        batch.set(unit1Ref, {
-          courseId: cscCourseRef.id,
-          title: '100 Level - First Semester',
-          description: 'Foundation courses for Computer Science.',
-          order: 1
-        });
-
-        const l1Ref = doc(collection(db, 'lessons'));
-        batch.set(l1Ref, {
-          unitId: unit1Ref.id,
-          title: 'CSC 101 - Intro to Computing',
-          topic: 'History of computers, hardware vs software, basic binary',
-          order: 1,
-          xpReward: 15
-        });
-
-        const l2Ref = doc(collection(db, 'lessons'));
-        batch.set(l2Ref, {
-          unitId: unit1Ref.id,
-          title: 'MTH 101 - Elementary Mathematics I',
-          topic: 'Set theory, functions, quadratic equations',
-          order: 2,
-          xpReward: 15
-        });
-
-        const l3Ref = doc(collection(db, 'lessons'));
-        batch.set(l3Ref, {
-          unitId: unit1Ref.id,
-          title: 'GST 101 - Use of English',
-          topic: 'Grammar, comprehension, and academic writing',
-          order: 3,
-          xpReward: 10
-        });
-      }
-
-      await batch.commit();
+      await fetch('/api/seed', { method: 'POST' });
       alert('FUOYE courses seeded successfully!');
       fetchData();
     } catch (error) {

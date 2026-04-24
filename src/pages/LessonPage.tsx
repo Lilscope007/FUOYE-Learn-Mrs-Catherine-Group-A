@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, updateDoc, arrayUnion, setDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { GoogleGenAI, Type } from '@google/genai';
 import confetti from 'canvas-confetti';
@@ -35,14 +33,14 @@ export default function LessonPage() {
     async function loadLesson() {
       if (!lessonId || !profile?.currentCourseId) return;
       try {
-        const lessonDoc = await getDoc(doc(db, 'lessons', lessonId));
-        if (lessonDoc.exists()) {
-          setLesson({ id: lessonDoc.id, ...lessonDoc.data() });
-        }
+        const lRes = await fetch(`/api/lessons/${lessonId}`);
+        if (lRes.ok) setLesson(await lRes.json());
         
-        const courseDoc = await getDoc(doc(db, 'courses', profile.currentCourseId));
-        if (courseDoc.exists()) {
-          setCourse({ id: courseDoc.id, ...courseDoc.data() });
+        const cRes = await fetch('/api/courses');
+        if (cRes.ok) {
+           const courses = await cRes.json();
+           const course = courses.find((c: any) => c.id === profile.currentCourseId);
+           setCourse(course);
         }
       } catch (error) {
         console.error("Error loading lesson:", error);
@@ -130,49 +128,18 @@ export default function LessonPage() {
       });
       
       if (profile && lessonId) {
-        // Update progress
-        const progRef = doc(db, 'userProgress', profile.uid);
-        const progDoc = await getDoc(progRef);
-        if (progDoc.exists()) {
-          await updateDoc(progRef, {
-            completedLessons: arrayUnion(lessonId)
-          });
-        } else {
-          await setDoc(progRef, {
-            userId: profile.uid,
-            completedLessons: [lessonId]
-          });
-        }
-        
-        // Update XP, streak, and lastPracticeDate
-        const today = new Date().toISOString().split('T')[0];
-        const lastPractice = profile.lastPracticeDate?.split('T')[0];
-        
-        let newStreak = profile.streak;
-        if (lastPractice !== today) {
-          // Check if yesterday
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayStr = yesterday.toISOString().split('T')[0];
-          
-          if (lastPractice === yesterdayStr) {
-            newStreak += 1;
-          } else if (!lastPractice) {
-            newStreak = 1;
-          } else {
-            newStreak = 1; // Reset streak if missed a day
-          }
-        }
-
-        await updateDoc(doc(db, 'users', profile.uid), {
-          xp: profile.xp + (lesson.xpReward || 10),
-          streak: newStreak,
-          lastPracticeDate: new Date().toISOString()
+        await fetch('/api/user/progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lessonId, xpReward: lesson.xpReward || 10 })
         });
       }
       
       setTimeout(() => {
-        navigate('/app');
+        // reload user profile data implicitly by navigating. 
+        // to be fully reactive, we could fetch /api/user/me in Layout or authStore, 
+        // but simple navigation will suffice since they reload Dash.
+        window.location.href = '/app';
       }, 2000);
     }
   };

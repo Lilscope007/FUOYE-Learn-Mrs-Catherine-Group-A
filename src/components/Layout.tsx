@@ -1,13 +1,19 @@
-import { Outlet, NavLink } from 'react-router-dom';
-import { Home, User, ShieldAlert, LogOut } from 'lucide-react';
-import { auth } from '../lib/firebase';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Home, User, ShieldAlert, LogOut, Trophy } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 export default function Layout() {
-  const { profile } = useAuthStore();
+  const { profile, setProfile } = useAuthStore();
+  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    auth.signOut();
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setProfile(null);
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return (
@@ -30,6 +36,18 @@ export default function Layout() {
           >
             <Home className="w-6 h-6" />
             <span className="hidden md:inline uppercase tracking-wider text-sm">Learn</span>
+          </NavLink>
+
+          <NavLink
+            to="/app/leaderboard"
+            className={({ isActive }) =>
+              `flex items-center gap-4 p-3 md:px-4 md:py-3 rounded-xl font-bold transition-colors ${
+                isActive ? 'bg-blue-50 text-blue-500 border-2 border-blue-200' : 'text-slate-500 hover:bg-slate-100 border-2 border-transparent'
+              }`
+            }
+          >
+            <Trophy className="w-6 h-6" />
+            <span className="hidden md:inline uppercase tracking-wider text-sm">Leaderboard</span>
           </NavLink>
           
           <NavLink
