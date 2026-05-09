@@ -1,6 +1,9 @@
 import Database from 'better-sqlite3';
+import path from 'path';
 
-const db = new Database('database.sqlite');
+// On Vercel, only /tmp is writable. Note: SQLite on Vercel Serverless will reset on cold starts.
+const dbPath = process.env.VERCEL ? '/tmp/database.sqlite' : 'database.sqlite';
+const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 
 // Define schema

@@ -381,7 +381,7 @@ app.post('/api/seed', authenticateToken, (req: any, res) => {
   res.json({ success: true });
 });
 
-async function startServer() {
+function seedDatabaseIfNeeded() {
   const courseCount = db.prepare('SELECT COUNT(*) as count FROM courses').get() as { count: number };
   if (courseCount.count === 0) {
     console.log('Seeding initial programs...');
@@ -541,7 +541,12 @@ async function startServer() {
       })();
     }
   }
+}
 
+// On cold starts (Vercel), we ensure DB is seeded
+seedDatabaseIfNeeded();
+
+async function startServer() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -557,9 +562,15 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  }
 }
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
