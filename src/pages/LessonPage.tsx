@@ -55,13 +55,15 @@ export default function LessonPage() {
       
       try {
         const response = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
+          model: 'gemini-2.5-flash',
           contents: `Generate 5 academic exercises for a university student studying "${course.title}" at Federal University Oye-Ekiti (FUOYE). 
           The lesson is titled "${lesson.title}" and covers "${lesson.topic}". 
           Include a mix of 'multiple_choice' and 'fill_blank' questions. 
           Do not use 'translate' unless it is specifically a language course. 
-          Make the questions rigorous, accurate, and suitable for a university-level learning app.`,
+          Make the questions rigorous, accurate, and suitable for a university-level learning app. Ensure explanations are concise (maximum 2 sentences).`,
           config: {
+            temperature: 0.7,
+            maxOutputTokens: 2048,
             responseMimeType: 'application/json',
             responseSchema: {
               type: Type.ARRAY,
@@ -70,9 +72,9 @@ export default function LessonPage() {
                 properties: {
                   type: { type: Type.STRING, enum: ['multiple_choice', 'translate', 'fill_blank'] },
                   question: { type: Type.STRING, description: "The question or sentence to translate/fill" },
-                  options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Provide 4 options for multiple_choice and fill_blank. Leave empty for translate." },
+                  options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Provide EXACTLY 4 options for multiple_choice and fill_blank. Leave empty for translate." },
                   correctAnswer: { type: Type.STRING, description: "The exact correct answer" },
-                  explanation: { type: Type.STRING, description: "Brief explanation of why this is correct" }
+                  explanation: { type: Type.STRING, description: "Brief explanation of why this is correct (max 2 sentences)" }
                 },
                 required: ['type', 'question', 'correctAnswer', 'explanation']
               }
@@ -80,7 +82,35 @@ export default function LessonPage() {
           }
         });
         
-        const generated = JSON.parse(response.text || '[]');
+        let generated = [];
+        try {
+          // If responseMimeType is set, Gemini usually returns raw JSON, but clean it just in case
+          const text = response.text || '[]';
+          generated = JSON.parse(text);
+          if (!Array.isArray(generated)) {
+            generated = [];
+          }
+          // Validate the options
+          generated = generated.map((ex: any) => {
+            if (!ex.options || ex.options.length === 0) {
+              if (ex.type !== 'translate') {
+                ex.options = [ex.correctAnswer, 'Option B', 'Option C', 'Option D'].sort(() => Math.random() - 0.5);
+              }
+            }
+            return ex;
+          });
+        } catch (e) {
+          console.error("Failed to parse JSON", e);
+          generated = [
+            {
+              type: 'multiple_choice',
+              question: 'Whoops! We had trouble generating your lesson. What should you do?',
+              options: ['Panic', 'Refresh the page', 'Give up', 'Cry'],
+              correctAnswer: 'Refresh the page',
+              explanation: 'Refreshing the page will try to generate the content again.'
+            }
+          ];
+        }
         setExercises(generated);
       } catch (error) {
         console.error("Error generating exercises:", error);
