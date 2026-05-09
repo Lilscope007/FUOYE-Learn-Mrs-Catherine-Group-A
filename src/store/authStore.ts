@@ -11,6 +11,9 @@ interface UserProfile {
   currentCourseId?: string;
   role: 'user' | 'admin';
   completedLessons: string[];
+  gems?: number;
+  hearts?: number;
+  maxHearts?: number;
 }
 
 interface AuthState {

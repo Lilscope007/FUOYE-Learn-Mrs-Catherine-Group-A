@@ -94,7 +94,7 @@ export default function LessonPage() {
     }
   }, [lesson, course]);
 
-  const handleCheck = () => {
+  const handleCheck = async () => {
     if (!selectedAnswer) return;
     
     const currentEx = exercises[currentIndex];
@@ -105,6 +105,21 @@ export default function LessonPage() {
     
     if (!correct) {
       setLives(prev => prev - 1);
+      // Deduct heart in DB
+      try {
+        await fetch('/api/user/progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ heartsCost: 1 })
+        });
+        const profileRes = await fetch('/api/user/me');
+        if (profileRes.ok) {
+          const updatedProfile = await profileRes.json();
+          useAuthStore.getState().setProfile(updatedProfile);
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 
@@ -122,8 +137,8 @@ export default function LessonPage() {
     } else {
       // Finished lesson
       confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 150,
+        spread: 80,
         origin: { y: 0.6 }
       });
       
@@ -131,8 +146,19 @@ export default function LessonPage() {
         await fetch('/api/user/progress', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lessonId, xpReward: lesson.xpReward || 10 })
+          body: JSON.stringify({ 
+            lessonId, 
+            xpReward: lesson.xpReward || 15,
+            gemsReward: 10
+          })
         });
+        
+        // Refresh profile before navigating
+        const profileRes = await fetch('/api/user/me');
+        if (profileRes.ok) {
+          const updatedProfile = await profileRes.json();
+          useAuthStore.getState().setProfile(updatedProfile);
+        }
       }
       
       setTimeout(() => {

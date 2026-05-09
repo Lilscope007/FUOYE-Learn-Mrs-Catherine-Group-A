@@ -52,4 +52,9 @@ db.exec(`
   );
 `);
 
+try { db.exec('ALTER TABLE users ADD COLUMN gems INTEGER DEFAULT 500'); } catch (e) { /* ignore */ }
+try { db.exec('ALTER TABLE users ADD COLUMN hearts INTEGER DEFAULT 5'); } catch (e) { /* ignore */ }
+try { db.exec('ALTER TABLE users ADD COLUMN maxHearts INTEGER DEFAULT 5'); } catch (e) { /* ignore */ }
+try { db.exec('ALTER TABLE users ADD COLUMN nextHeartRefill TEXT'); } catch (e) { /* ignore */ }
+
 export default db;
