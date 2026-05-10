@@ -293,15 +293,15 @@ app.post('/api/seed', authenticateToken, async (req: any, res) => {
         desc: 'Foundational computer science, mathematics, and general studies',
         order: 1,
         courses: [
-          { code: 'CSC 101', title: 'Introduction to Computer Science I', topics: 'History of computers, data representation, hardware, software systems' },
-          { code: 'MTH 101', title: 'Elementary Mathematics I', topics: 'Algebra, indices, logarithms, quadratic equations, trigonometry, sets' },
-          { code: 'PHY 101', title: 'General Physics I', topics: 'Mechanics, motion, force, energy, heat, waves, gravitation' },
-          { code: 'PHY 107', title: 'Physics Laboratory I', topics: 'Practical experiments in mechanics, measurements, optics and heat' },
-          { code: 'CHM 101', title: 'General Chemistry I', topics: 'Atomic structure, chemical bonding, periodic table, acids and bases' },
-          { code: 'CHM 107', title: 'Practical Chemistry I', topics: 'Basic laboratory techniques, titration, chemical experiments' },
-          { code: 'GST 101', title: 'Communication in English I', topics: 'Grammar, comprehension, sentence construction, essay writing' },
-          { code: 'GST 103', title: 'Use of Library and ICT', topics: 'Library usage, referencing, digital literacy, internet and ICT tools' },
-          { code: 'GST 105', title: 'Introduction to Entrepreneurship', topics: 'Entrepreneurship concepts, business ideas, innovation, self-employment' }
+          { code: 'CSC 101', title: 'Introduction to Computer Science I', topics: 'History of computers, computer generations, data representation, computer hardware, software systems, programming basics, applications of computers.' },
+          { code: 'MTH 101', title: 'Elementary Mathematics I', topics: 'Algebra, indices, logarithms, quadratic equations, trigonometry, sets and functions.' },
+          { code: 'PHY 101', title: 'General Physics I', topics: 'Mechanics, motion, force, energy, heat, waves, gravitation.' },
+          { code: 'PHY 107', title: 'Physics Laboratory I', topics: 'Practical experiments in mechanics, measurements, optics and heat.' },
+          { code: 'CHM 101', title: 'General Chemistry I', topics: 'Atomic structure, chemical bonding, periodic table, acids and bases, reactions.' },
+          { code: 'CHM 107', title: 'Practical Chemistry I', topics: 'Basic laboratory techniques, titration, chemical experiments.' },
+          { code: 'GST 101', title: 'Communication in English I', topics: 'Grammar, comprehension, sentence construction, essay writing, oral English.' },
+          { code: 'GST 103', title: 'Use of Library and ICT', topics: 'Library usage, referencing, digital literacy, internet and ICT tools.' },
+          { code: 'GST 105', title: 'Introduction to Entrepreneurship', topics: 'Entrepreneurship concepts, business ideas, innovation, self employment.' }
         ]
       },
       {
@@ -309,15 +309,15 @@ app.post('/api/seed', authenticateToken, async (req: any, res) => {
         desc: 'Introductory programming, mathematics and sciences',
         order: 2,
         courses: [
-          { code: 'CSC 102', title: 'Introduction to Computer Science II', topics: 'Problem solving, algorithms, flowcharts, programming logic, OS' },
-          { code: 'MTH 102', title: 'Elementary Mathematics II', topics: 'Calculus, differentiation, integration, coordinate geometry, matrices' },
-          { code: 'PHY 102', title: 'General Physics II', topics: 'Electricity, magnetism, optics, electronics and modern physics' },
-          { code: 'PHY 108', title: 'Physics Laboratory II', topics: 'Practical experiments in electricity, optics and electronics' },
-          { code: 'CHM 102', title: 'General Chemistry II', topics: 'Organic chemistry, hydrocarbons, reaction mechanisms, electrochemistry' },
-          { code: 'CHM 108', title: 'Practical Chemistry II', topics: 'Organic chemistry practicals and laboratory analysis' },
-          { code: 'GST 102', title: 'Communication in English II', topics: 'Advanced grammar, report writing, technical writing and presentation' },
-          { code: 'GST 106', title: 'Entrepreneurial Skills and Business Concepts', topics: 'Business planning, marketing, financial management' },
-          { code: 'GST 108', title: 'Nigerian Government and Culture', topics: 'Nigerian history, government structure, economy and cultural heritage' }
+          { code: 'CSC 102', title: 'Introduction to Computer Science II', topics: 'Computer problem solving, algorithms, flowcharts, programming logic, operating systems.' },
+          { code: 'MTH 102', title: 'Elementary Mathematics II', topics: 'Calculus, differentiation, integration, coordinate geometry, matrices.' },
+          { code: 'PHY 102', title: 'General Physics II', topics: 'Electricity, magnetism, optics, electronics and modern physics.' },
+          { code: 'PHY 108', title: 'Physics Laboratory II', topics: 'Practical experiments in electricity, optics and electronics.' },
+          { code: 'CHM 102', title: 'General Chemistry II', topics: 'Organic chemistry, hydrocarbons, reaction mechanisms, electrochemistry.' },
+          { code: 'CHM 108', title: 'Practical Chemistry II', topics: 'Organic chemistry practicals and laboratory analysis.' },
+          { code: 'GST 102', title: 'Communication in English II', topics: 'Advanced grammar, report writing, technical writing and presentation skills.' },
+          { code: 'GST 106', title: 'Entrepreneurial Skills and Business Concepts', topics: 'Business planning, marketing, financial management and enterprise development.' },
+          { code: 'GST 108', title: 'Nigerian Government and Culture', topics: 'Nigerian history, government structure, economy and cultural heritage.' }
         ]
       },
       {
@@ -325,13 +325,13 @@ app.post('/api/seed', authenticateToken, async (req: any, res) => {
         desc: 'Core computer science principles and programming',
         order: 3,
         courses: [
-          { code: 'CSC 201', title: 'Computer Programming I', topics: 'Structured programming, variables, loops, arrays, functions, C/C++' },
-          { code: 'CSC 203', title: 'Discrete Structures', topics: 'Logic, Boolean algebra, graph theory, relations, sets and combinatorics' },
-          { code: 'CSC 205', title: 'Computer Organization and Architecture I', topics: 'CPU structure, memory systems, instruction sets, machine language' },
-          { code: 'CSC 207', title: 'Introduction to Information Systems', topics: 'Information systems concepts, databases, data processing and MIS' },
-          { code: 'MTH 201', title: 'Mathematical Methods I', topics: 'Differential equations, matrices, vectors and mathematical modeling' },
-          { code: 'STA 201', title: 'Probability and Statistics', topics: 'Probability theory, distributions, statistical methods and hypothesis testing' },
-          { code: 'GST 201', title: 'Nigerian Peoples and Culture', topics: 'Nigerian cultural diversity, traditions, values and national integration' }
+          { code: 'CSC 201', title: 'Computer Programming I', topics: 'Structured programming, variables, loops, arrays, functions, C/C++ programming.' },
+          { code: 'CSC 203', title: 'Discrete Structures', topics: 'Logic, Boolean algebra, graph theory, relations, sets and combinatorics.' },
+          { code: 'CSC 205', title: 'Computer Organization and Architecture I', topics: 'CPU structure, memory systems, instruction sets, machine language concepts.' },
+          { code: 'CSC 207', title: 'Introduction to Information Systems', topics: 'Information systems concepts, databases, data processing and MIS.' },
+          { code: 'MTH 201', title: 'Mathematical Methods I', topics: 'Differential equations, matrices, vectors and mathematical modeling.' },
+          { code: 'STA 201', title: 'Probability and Statistics', topics: 'Probability theory, distributions, statistical methods and hypothesis testing.' },
+          { code: 'GST 201', title: 'Nigerian Peoples and Culture', topics: 'Nigerian cultural diversity, traditions, values and national integration.' }
         ]
       },
       {
@@ -339,13 +339,13 @@ app.post('/api/seed', authenticateToken, async (req: any, res) => {
         desc: 'Advanced programming and data structures',
         order: 4,
         courses: [
-          { code: 'CSC 202', title: 'Computer Programming II', topics: 'Advanced programming, pointers, files, structures and object-oriented concepts' },
-          { code: 'CSC 204', title: 'Data Structures', topics: 'Arrays, stacks, queues, linked lists, trees, graphs and searching algorithms' },
-          { code: 'CSC 206', title: 'Computer Organization and Architecture II', topics: 'Input/output systems, assembly language, processors and computer performance' },
-          { code: 'CSC 208', title: 'Numerical Analysis', topics: 'Numerical methods, interpolation, approximation and error analysis' },
-          { code: 'CSC 210', title: 'Logic Design', topics: 'Digital logic, gates, combinational circuits, sequential circuits and flip-flops' },
-          { code: 'MTH 202', title: 'Mathematical Methods II', topics: 'Complex numbers, transforms and advanced calculus' },
-          { code: 'GST 202', title: 'Philosophy and Logic', topics: 'Critical thinking, reasoning, symbolic logic and philosophical concepts' }
+          { code: 'CSC 202', title: 'Computer Programming II', topics: 'Advanced programming, pointers, files, structures and object-oriented concepts.' },
+          { code: 'CSC 204', title: 'Data Structures', topics: 'Arrays, stacks, queues, linked lists, trees, graphs and searching algorithms.' },
+          { code: 'CSC 206', title: 'Computer Organization and Architecture II', topics: 'Input/output systems, assembly language, processors and computer performance.' },
+          { code: 'CSC 208', title: 'Numerical Analysis', topics: 'Numerical methods, interpolation, approximation and error analysis.' },
+          { code: 'CSC 210', title: 'Logic Design', topics: 'Digital logic, gates, combinational circuits, sequential circuits and flip-flops.' },
+          { code: 'MTH 202', title: 'Mathematical Methods II', topics: 'Complex numbers, transforms and advanced calculus.' },
+          { code: 'GST 202', title: 'Philosophy and Logic', topics: 'Critical thinking, reasoning, symbolic logic and philosophical concepts.' }
         ]
       },
       {
@@ -353,13 +353,13 @@ app.post('/api/seed', authenticateToken, async (req: any, res) => {
         desc: 'Systems software, databases and networks',
         order: 5,
         courses: [
-          { code: 'CSC 301', title: 'Operating Systems I', topics: 'Process management, memory management, scheduling and file systems' },
-          { code: 'CSC 303', title: 'Database Management Systems', topics: 'Database design, SQL, normalization, relational databases and DBMS' },
-          { code: 'CSC 305', title: 'Systems Analysis and Design', topics: 'SDLC, feasibility studies, requirement analysis and system modeling' },
-          { code: 'CSC 307', title: 'Algorithms and Complexity Analysis', topics: 'Algorithm design, sorting, searching, recursion and complexity analysis' },
-          { code: 'CSC 309', title: 'Computer Networks I', topics: 'Network fundamentals, OSI model, TCP/IP, routing and switching' },
-          { code: 'CSC 311', title: 'Web Technology', topics: 'HTML, CSS, JavaScript, web hosting and web application development' },
-          { code: 'CSC 313', title: 'Human Computer Interaction', topics: 'User interface design, usability principles and interaction models' }
+          { code: 'CSC 301', title: 'Operating Systems I', topics: 'Process management, memory management, scheduling and file systems.' },
+          { code: 'CSC 303', title: 'Database Management Systems', topics: 'Database design, SQL, normalization, relational databases and DBMS concepts.' },
+          { code: 'CSC 305', title: 'Systems Analysis and Design', topics: 'SDLC, feasibility studies, requirement analysis and system modeling.' },
+          { code: 'CSC 307', title: 'Algorithms and Complexity Analysis', topics: 'Algorithm design, sorting, searching, recursion and complexity analysis.' },
+          { code: 'CSC 309', title: 'Computer Networks I', topics: 'Network fundamentals, OSI model, TCP/IP, routing and switching.' },
+          { code: 'CSC 311', title: 'Web Technology', topics: 'HTML, CSS, JavaScript, web hosting and web application development.' },
+          { code: 'CSC 313', title: 'Human Computer Interaction', topics: 'User interface design, usability principles and interaction models.' }
         ]
       },
       {
@@ -367,13 +367,13 @@ app.post('/api/seed', authenticateToken, async (req: any, res) => {
         desc: 'Advanced software systems and research preparation',
         order: 6,
         courses: [
-          { code: 'CSC 302', title: 'Operating Systems II', topics: 'Deadlocks, virtualization, distributed systems and security management' },
-          { code: 'CSC 304', title: 'Software Engineering', topics: 'Software development methodologies, testing, maintenance and project management' },
-          { code: 'CSC 306', title: 'Artificial Intelligence', topics: 'Intelligent systems, search algorithms, expert systems and machine learning basics' },
-          { code: 'CSC 308', title: 'Compiler Construction', topics: 'Lexical analysis, parsing, syntax trees and code generation' },
-          { code: 'CSC 310', title: 'Computer Networks II', topics: 'Wireless networks, network security, protocols and network administration' },
-          { code: 'CSC 312', title: 'Research Methods', topics: 'Academic research, report writing, referencing and proposal development' },
-          { code: 'CSC 314', title: 'SIWES Preparation / Industrial Training Seminar', topics: 'Industrial training orientation and professional ethics' }
+          { code: 'CSC 302', title: 'Operating Systems II', topics: 'Deadlocks, virtualization, distributed systems and security management.' },
+          { code: 'CSC 304', title: 'Software Engineering', topics: 'Software development methodologies, testing, maintenance and project management.' },
+          { code: 'CSC 306', title: 'Artificial Intelligence', topics: 'Intelligent systems, search algorithms, expert systems and machine learning basics.' },
+          { code: 'CSC 308', title: 'Compiler Construction', topics: 'Lexical analysis, parsing, syntax trees and code generation.' },
+          { code: 'CSC 310', title: 'Computer Networks II', topics: 'Wireless networks, network security, protocols and network administration.' },
+          { code: 'CSC 312', title: 'Research Methods', topics: 'Academic research, report writing, referencing and proposal development.' },
+          { code: 'CSC 314', title: 'SIWES Preparation / Industrial Training Seminar', topics: 'Industrial training orientation and professional ethics.' }
         ]
       },
       {
@@ -381,13 +381,13 @@ app.post('/api/seed', authenticateToken, async (req: any, res) => {
         desc: 'Specialization, project management and networks',
         order: 7,
         courses: [
-          { code: 'CSC 401', title: 'Software Engineering Project Management', topics: 'Project planning, scheduling, risk analysis and software quality assurance' },
-          { code: 'CSC 403', title: 'Computer Graphics', topics: 'Graphics systems, image processing, rendering and animation basics' },
-          { code: 'CSC 405', title: 'Network Security and Cryptography', topics: 'Encryption, authentication, cyber security, digital signatures and firewalls' },
-          { code: 'CSC 407', title: 'Distributed Systems', topics: 'Distributed computing, synchronization, cloud systems and middleware' },
-          { code: 'CSC 409', title: 'Data Communication', topics: 'Communication models, transmission systems and network protocols' },
-          { code: 'CSC 411', title: 'Seminar', topics: 'Technical paper presentation and research discussion' },
-          { code: 'CSC 499', title: 'Final Year Project I', topics: 'Project topic selection, literature review and system design' }
+          { code: 'CSC 401', title: 'Software Engineering Project Management', topics: 'Project planning, scheduling, risk analysis and software quality assurance.' },
+          { code: 'CSC 403', title: 'Computer Graphics', topics: 'Graphics systems, image processing, rendering and animation basics.' },
+          { code: 'CSC 405', title: 'Network Security and Cryptography', topics: 'Encryption, authentication, cyber security, digital signatures and firewalls.' },
+          { code: 'CSC 407', title: 'Distributed Systems', topics: 'Distributed computing, synchronization, cloud systems and middleware.' },
+          { code: 'CSC 409', title: 'Data Communication', topics: 'Communication models, transmission systems and network protocols.' },
+          { code: 'CSC 411', title: 'Seminar', topics: 'Technical paper presentation and research discussion.' },
+          { code: 'CSC 499', title: 'Final Year Project I', topics: 'Project topic selection, literature review and system design.' }
         ]
       },
       {
@@ -395,12 +395,12 @@ app.post('/api/seed', authenticateToken, async (req: any, res) => {
         desc: 'Advanced modern computing, modeling and final project',
         order: 8,
         courses: [
-          { code: 'CSC 402', title: 'Computer Simulation and Modeling', topics: 'Simulation techniques, stochastic models and system modeling' },
-          { code: 'CSC 404', title: 'Machine Learning / Intelligent Systems', topics: 'Supervised learning, classification, regression and neural networks' },
-          { code: 'CSC 406', title: 'Internet Programming', topics: 'Dynamic web applications, APIs, backend programming and deployment' },
-          { code: 'CSC 408', title: 'Parallel Computing', topics: 'Parallel architectures, multiprocessing and concurrent programming' },
-          { code: 'CSC 410', title: 'Information Security', topics: 'Information assurance, cyber threats, risk management and security policies' },
-          { code: 'CSC 412', title: 'Entrepreneurship in ICT', topics: 'ICT startups, innovation management and technology business development' },
+          { code: 'CSC 402', title: 'Computer Simulation and Modeling', topics: 'Simulation techniques, stochastic models and system modeling.' },
+          { code: 'CSC 404', title: 'Machine Learning / Intelligent Systems', topics: 'Supervised learning, classification, regression and neural networks.' },
+          { code: 'CSC 406', title: 'Internet Programming', topics: 'Dynamic web applications, APIs, backend programming and deployment.' },
+          { code: 'CSC 408', title: 'Parallel Computing', topics: 'Parallel architectures, multiprocessing and concurrent programming.' },
+          { code: 'CSC 410', title: 'Information Security', topics: 'Information assurance, cyber threats, risk management and security policies.' },
+          { code: 'CSC 412', title: 'Entrepreneurship in ICT', topics: 'ICT startups, innovation management and technology business development.' },
           { code: 'CSC 499', title: 'Final Year Project II', topics: 'Project implementation, testing, documentation and defense' }
         ]
       }
@@ -455,15 +455,15 @@ async function seedDatabaseIfNeeded() {
           desc: 'Foundational computer science, mathematics, and general studies',
           order: 1,
           courses: [
-            { code: 'CSC 101', title: 'Introduction to Computer Science I', topics: 'History of computers, data representation, hardware, software systems' },
-            { code: 'MTH 101', title: 'Elementary Mathematics I', topics: 'Algebra, indices, logarithms, quadratic equations, trigonometry, sets' },
-            { code: 'PHY 101', title: 'General Physics I', topics: 'Mechanics, motion, force, energy, heat, waves, gravitation' },
-            { code: 'PHY 107', title: 'Physics Laboratory I', topics: 'Practical experiments in mechanics, measurements, optics and heat' },
-            { code: 'CHM 101', title: 'General Chemistry I', topics: 'Atomic structure, chemical bonding, periodic table, acids and bases' },
-            { code: 'CHM 107', title: 'Practical Chemistry I', topics: 'Basic laboratory techniques, titration, chemical experiments' },
-            { code: 'GST 101', title: 'Communication in English I', topics: 'Grammar, comprehension, sentence construction, essay writing' },
-            { code: 'GST 103', title: 'Use of Library and ICT', topics: 'Library usage, referencing, digital literacy, internet and ICT tools' },
-            { code: 'GST 105', title: 'Introduction to Entrepreneurship', topics: 'Entrepreneurship concepts, business ideas, innovation, self-employment' }
+            { code: 'CSC 101', title: 'Introduction to Computer Science I', topics: 'History of computers, computer generations, data representation, computer hardware, software systems, programming basics, applications of computers.' },
+            { code: 'MTH 101', title: 'Elementary Mathematics I', topics: 'Algebra, indices, logarithms, quadratic equations, trigonometry, sets and functions.' },
+            { code: 'PHY 101', title: 'General Physics I', topics: 'Mechanics, motion, force, energy, heat, waves, gravitation.' },
+            { code: 'PHY 107', title: 'Physics Laboratory I', topics: 'Practical experiments in mechanics, measurements, optics and heat.' },
+            { code: 'CHM 101', title: 'General Chemistry I', topics: 'Atomic structure, chemical bonding, periodic table, acids and bases, reactions.' },
+            { code: 'CHM 107', title: 'Practical Chemistry I', topics: 'Basic laboratory techniques, titration, chemical experiments.' },
+            { code: 'GST 101', title: 'Communication in English I', topics: 'Grammar, comprehension, sentence construction, essay writing, oral English.' },
+            { code: 'GST 103', title: 'Use of Library and ICT', topics: 'Library usage, referencing, digital literacy, internet and ICT tools.' },
+            { code: 'GST 105', title: 'Introduction to Entrepreneurship', topics: 'Entrepreneurship concepts, business ideas, innovation, self employment.' }
           ]
         },
         {
@@ -471,15 +471,15 @@ async function seedDatabaseIfNeeded() {
           desc: 'Introductory programming, mathematics and sciences',
           order: 2,
           courses: [
-            { code: 'CSC 102', title: 'Introduction to Computer Science II', topics: 'Problem solving, algorithms, flowcharts, programming logic, OS' },
-            { code: 'MTH 102', title: 'Elementary Mathematics II', topics: 'Calculus, differentiation, integration, coordinate geometry, matrices' },
-            { code: 'PHY 102', title: 'General Physics II', topics: 'Electricity, magnetism, optics, electronics and modern physics' },
-            { code: 'PHY 108', title: 'Physics Laboratory II', topics: 'Practical experiments in electricity, optics and electronics' },
-            { code: 'CHM 102', title: 'General Chemistry II', topics: 'Organic chemistry, hydrocarbons, reaction mechanisms, electrochemistry' },
-            { code: 'CHM 108', title: 'Practical Chemistry II', topics: 'Organic chemistry practicals and laboratory analysis' },
-            { code: 'GST 102', title: 'Communication in English II', topics: 'Advanced grammar, report writing, technical writing and presentation' },
-            { code: 'GST 106', title: 'Entrepreneurial Skills and Business Concepts', topics: 'Business planning, marketing, financial management' },
-            { code: 'GST 108', title: 'Nigerian Government and Culture', topics: 'Nigerian history, government structure, economy and cultural heritage' }
+            { code: 'CSC 102', title: 'Introduction to Computer Science II', topics: 'Computer problem solving, algorithms, flowcharts, programming logic, operating systems.' },
+            { code: 'MTH 102', title: 'Elementary Mathematics II', topics: 'Calculus, differentiation, integration, coordinate geometry, matrices.' },
+            { code: 'PHY 102', title: 'General Physics II', topics: 'Electricity, magnetism, optics, electronics and modern physics.' },
+            { code: 'PHY 108', title: 'Physics Laboratory II', topics: 'Practical experiments in electricity, optics and electronics.' },
+            { code: 'CHM 102', title: 'General Chemistry II', topics: 'Organic chemistry, hydrocarbons, reaction mechanisms, electrochemistry.' },
+            { code: 'CHM 108', title: 'Practical Chemistry II', topics: 'Organic chemistry practicals and laboratory analysis.' },
+            { code: 'GST 102', title: 'Communication in English II', topics: 'Advanced grammar, report writing, technical writing and presentation skills.' },
+            { code: 'GST 106', title: 'Entrepreneurial Skills and Business Concepts', topics: 'Business planning, marketing, financial management and enterprise development.' },
+            { code: 'GST 108', title: 'Nigerian Government and Culture', topics: 'Nigerian history, government structure, economy and cultural heritage.' }
           ]
         },
         {
@@ -487,13 +487,13 @@ async function seedDatabaseIfNeeded() {
           desc: 'Core computer science principles and programming',
           order: 3,
           courses: [
-            { code: 'CSC 201', title: 'Computer Programming I', topics: 'Structured programming, variables, loops, arrays, functions, C/C++' },
-            { code: 'CSC 203', title: 'Discrete Structures', topics: 'Logic, Boolean algebra, graph theory, relations, sets and combinatorics' },
-            { code: 'CSC 205', title: 'Computer Organization and Architecture I', topics: 'CPU structure, memory systems, instruction sets, machine language' },
-            { code: 'CSC 207', title: 'Introduction to Information Systems', topics: 'Information systems concepts, databases, data processing and MIS' },
-            { code: 'MTH 201', title: 'Mathematical Methods I', topics: 'Differential equations, matrices, vectors and mathematical modeling' },
-            { code: 'STA 201', title: 'Probability and Statistics', topics: 'Probability theory, distributions, statistical methods and hypothesis testing' },
-            { code: 'GST 201', title: 'Nigerian Peoples and Culture', topics: 'Nigerian cultural diversity, traditions, values and national integration' }
+            { code: 'CSC 201', title: 'Computer Programming I', topics: 'Structured programming, variables, loops, arrays, functions, C/C++ programming.' },
+            { code: 'CSC 203', title: 'Discrete Structures', topics: 'Logic, Boolean algebra, graph theory, relations, sets and combinatorics.' },
+            { code: 'CSC 205', title: 'Computer Organization and Architecture I', topics: 'CPU structure, memory systems, instruction sets, machine language concepts.' },
+            { code: 'CSC 207', title: 'Introduction to Information Systems', topics: 'Information systems concepts, databases, data processing and MIS.' },
+            { code: 'MTH 201', title: 'Mathematical Methods I', topics: 'Differential equations, matrices, vectors and mathematical modeling.' },
+            { code: 'STA 201', title: 'Probability and Statistics', topics: 'Probability theory, distributions, statistical methods and hypothesis testing.' },
+            { code: 'GST 201', title: 'Nigerian Peoples and Culture', topics: 'Nigerian cultural diversity, traditions, values and national integration.' }
           ]
         },
         {
@@ -501,13 +501,13 @@ async function seedDatabaseIfNeeded() {
           desc: 'Advanced programming and data structures',
           order: 4,
           courses: [
-            { code: 'CSC 202', title: 'Computer Programming II', topics: 'Advanced programming, pointers, files, structures and object-oriented concepts' },
-            { code: 'CSC 204', title: 'Data Structures', topics: 'Arrays, stacks, queues, linked lists, trees, graphs and searching algorithms' },
-            { code: 'CSC 206', title: 'Computer Organization and Architecture II', topics: 'Input/output systems, assembly language, processors and computer performance' },
-            { code: 'CSC 208', title: 'Numerical Analysis', topics: 'Numerical methods, interpolation, approximation and error analysis' },
-            { code: 'CSC 210', title: 'Logic Design', topics: 'Digital logic, gates, combinational circuits, sequential circuits and flip-flops' },
-            { code: 'MTH 202', title: 'Mathematical Methods II', topics: 'Complex numbers, transforms and advanced calculus' },
-            { code: 'GST 202', title: 'Philosophy and Logic', topics: 'Critical thinking, reasoning, symbolic logic and philosophical concepts' }
+            { code: 'CSC 202', title: 'Computer Programming II', topics: 'Advanced programming, pointers, files, structures and object-oriented concepts.' },
+            { code: 'CSC 204', title: 'Data Structures', topics: 'Arrays, stacks, queues, linked lists, trees, graphs and searching algorithms.' },
+            { code: 'CSC 206', title: 'Computer Organization and Architecture II', topics: 'Input/output systems, assembly language, processors and computer performance.' },
+            { code: 'CSC 208', title: 'Numerical Analysis', topics: 'Numerical methods, interpolation, approximation and error analysis.' },
+            { code: 'CSC 210', title: 'Logic Design', topics: 'Digital logic, gates, combinational circuits, sequential circuits and flip-flops.' },
+            { code: 'MTH 202', title: 'Mathematical Methods II', topics: 'Complex numbers, transforms and advanced calculus.' },
+            { code: 'GST 202', title: 'Philosophy and Logic', topics: 'Critical thinking, reasoning, symbolic logic and philosophical concepts.' }
           ]
         },
         {
@@ -515,13 +515,13 @@ async function seedDatabaseIfNeeded() {
           desc: 'Systems software, databases and networks',
           order: 5,
           courses: [
-            { code: 'CSC 301', title: 'Operating Systems I', topics: 'Process management, memory management, scheduling and file systems' },
-            { code: 'CSC 303', title: 'Database Management Systems', topics: 'Database design, SQL, normalization, relational databases and DBMS' },
-            { code: 'CSC 305', title: 'Systems Analysis and Design', topics: 'SDLC, feasibility studies, requirement analysis and system modeling' },
-            { code: 'CSC 307', title: 'Algorithms and Complexity Analysis', topics: 'Algorithm design, sorting, searching, recursion and complexity analysis' },
-            { code: 'CSC 309', title: 'Computer Networks I', topics: 'Network fundamentals, OSI model, TCP/IP, routing and switching' },
-            { code: 'CSC 311', title: 'Web Technology', topics: 'HTML, CSS, JavaScript, web hosting and web application development' },
-            { code: 'CSC 313', title: 'Human Computer Interaction', topics: 'User interface design, usability principles and interaction models' }
+            { code: 'CSC 301', title: 'Operating Systems I', topics: 'Process management, memory management, scheduling and file systems.' },
+            { code: 'CSC 303', title: 'Database Management Systems', topics: 'Database design, SQL, normalization, relational databases and DBMS concepts.' },
+            { code: 'CSC 305', title: 'Systems Analysis and Design', topics: 'SDLC, feasibility studies, requirement analysis and system modeling.' },
+            { code: 'CSC 307', title: 'Algorithms and Complexity Analysis', topics: 'Algorithm design, sorting, searching, recursion and complexity analysis.' },
+            { code: 'CSC 309', title: 'Computer Networks I', topics: 'Network fundamentals, OSI model, TCP/IP, routing and switching.' },
+            { code: 'CSC 311', title: 'Web Technology', topics: 'HTML, CSS, JavaScript, web hosting and web application development.' },
+            { code: 'CSC 313', title: 'Human Computer Interaction', topics: 'User interface design, usability principles and interaction models.' }
           ]
         },
         {
@@ -529,13 +529,13 @@ async function seedDatabaseIfNeeded() {
           desc: 'Advanced software systems and research preparation',
           order: 6,
           courses: [
-            { code: 'CSC 302', title: 'Operating Systems II', topics: 'Deadlocks, virtualization, distributed systems and security management' },
-            { code: 'CSC 304', title: 'Software Engineering', topics: 'Software development methodologies, testing, maintenance and project management' },
-            { code: 'CSC 306', title: 'Artificial Intelligence', topics: 'Intelligent systems, search algorithms, expert systems and machine learning basics' },
-            { code: 'CSC 308', title: 'Compiler Construction', topics: 'Lexical analysis, parsing, syntax trees and code generation' },
-            { code: 'CSC 310', title: 'Computer Networks II', topics: 'Wireless networks, network security, protocols and network administration' },
-            { code: 'CSC 312', title: 'Research Methods', topics: 'Academic research, report writing, referencing and proposal development' },
-            { code: 'CSC 314', title: 'SIWES Preparation / Industrial Training Seminar', topics: 'Industrial training orientation and professional ethics' }
+            { code: 'CSC 302', title: 'Operating Systems II', topics: 'Deadlocks, virtualization, distributed systems and security management.' },
+            { code: 'CSC 304', title: 'Software Engineering', topics: 'Software development methodologies, testing, maintenance and project management.' },
+            { code: 'CSC 306', title: 'Artificial Intelligence', topics: 'Intelligent systems, search algorithms, expert systems and machine learning basics.' },
+            { code: 'CSC 308', title: 'Compiler Construction', topics: 'Lexical analysis, parsing, syntax trees and code generation.' },
+            { code: 'CSC 310', title: 'Computer Networks II', topics: 'Wireless networks, network security, protocols and network administration.' },
+            { code: 'CSC 312', title: 'Research Methods', topics: 'Academic research, report writing, referencing and proposal development.' },
+            { code: 'CSC 314', title: 'SIWES Preparation / Industrial Training Seminar', topics: 'Industrial training orientation and professional ethics.' }
           ]
         },
         {
@@ -543,13 +543,13 @@ async function seedDatabaseIfNeeded() {
           desc: 'Specialization, project management and networks',
           order: 7,
           courses: [
-            { code: 'CSC 401', title: 'Software Engineering Project Management', topics: 'Project planning, scheduling, risk analysis and software quality assurance' },
-            { code: 'CSC 403', title: 'Computer Graphics', topics: 'Graphics systems, image processing, rendering and animation basics' },
-            { code: 'CSC 405', title: 'Network Security and Cryptography', topics: 'Encryption, authentication, cyber security, digital signatures and firewalls' },
-            { code: 'CSC 407', title: 'Distributed Systems', topics: 'Distributed computing, synchronization, cloud systems and middleware' },
-            { code: 'CSC 409', title: 'Data Communication', topics: 'Communication models, transmission systems and network protocols' },
-            { code: 'CSC 411', title: 'Seminar', topics: 'Technical paper presentation and research discussion' },
-            { code: 'CSC 499', title: 'Final Year Project I', topics: 'Project topic selection, literature review and system design' }
+            { code: 'CSC 401', title: 'Software Engineering Project Management', topics: 'Project planning, scheduling, risk analysis and software quality assurance.' },
+            { code: 'CSC 403', title: 'Computer Graphics', topics: 'Graphics systems, image processing, rendering and animation basics.' },
+            { code: 'CSC 405', title: 'Network Security and Cryptography', topics: 'Encryption, authentication, cyber security, digital signatures and firewalls.' },
+            { code: 'CSC 407', title: 'Distributed Systems', topics: 'Distributed computing, synchronization, cloud systems and middleware.' },
+            { code: 'CSC 409', title: 'Data Communication', topics: 'Communication models, transmission systems and network protocols.' },
+            { code: 'CSC 411', title: 'Seminar', topics: 'Technical paper presentation and research discussion.' },
+            { code: 'CSC 499', title: 'Final Year Project I', topics: 'Project topic selection, literature review and system design.' }
           ]
         },
         {
@@ -557,13 +557,13 @@ async function seedDatabaseIfNeeded() {
           desc: 'Advanced modern computing, modeling and final project',
           order: 8,
           courses: [
-            { code: 'CSC 402', title: 'Computer Simulation and Modeling', topics: 'Simulation techniques, stochastic models and system modeling' },
-            { code: 'CSC 404', title: 'Machine Learning / Intelligent Systems', topics: 'Supervised learning, classification, regression and neural networks' },
-            { code: 'CSC 406', title: 'Internet Programming', topics: 'Dynamic web applications, APIs, backend programming and deployment' },
-            { code: 'CSC 408', title: 'Parallel Computing', topics: 'Parallel architectures, multiprocessing and concurrent programming' },
-            { code: 'CSC 410', title: 'Information Security', topics: 'Information assurance, cyber threats, risk management and security policies' },
-            { code: 'CSC 412', title: 'Entrepreneurship in ICT', topics: 'ICT startups, innovation management and technology business development' },
-            { code: 'CSC 499', title: 'Final Year Project II', topics: 'Project implementation, testing, documentation and defense' }
+            { code: 'CSC 402', title: 'Computer Simulation and Modeling', topics: 'Simulation techniques, stochastic models and system modeling.' },
+            { code: 'CSC 404', title: 'Machine Learning / Intelligent Systems', topics: 'Supervised learning, classification, regression and neural networks.' },
+            { code: 'CSC 406', title: 'Internet Programming', topics: 'Dynamic web applications, APIs, backend programming and deployment.' },
+            { code: 'CSC 408', title: 'Parallel Computing', topics: 'Parallel architectures, multiprocessing and concurrent programming.' },
+            { code: 'CSC 410', title: 'Information Security', topics: 'Information assurance, cyber threats, risk management and security policies.' },
+            { code: 'CSC 412', title: 'Entrepreneurship in ICT', topics: 'ICT startups, innovation management and technology business development.' },
+            { code: 'CSC 499', title: 'Final Year Project II', topics: 'Project implementation, testing, documentation and defense.' }
           ]
         }
       ];

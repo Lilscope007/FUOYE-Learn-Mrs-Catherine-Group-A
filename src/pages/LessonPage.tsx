@@ -178,7 +178,7 @@ export default function LessonPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             lessonId, 
-            xpReward: lesson.xpReward || 15,
+            xpReward: lesson.xpReward || lesson.xpreward || 20,
             gemsReward: 10
           })
         });

@@ -29,7 +29,7 @@ export default function Dashboard() {
           
           if (uRes.ok && lRes.ok) {
             const allUnits = await uRes.json();
-            const courseUnits = allUnits.filter((u: any) => u.courseId === profile.currentCourseId);
+            const courseUnits = allUnits.filter((u: any) => u.courseId === profile.currentCourseId || u.courseid === profile.currentCourseId);
             setUnits(courseUnits);
             setLessons(await lRes.json());
           }
@@ -57,6 +57,8 @@ export default function Dashboard() {
     }
   };
 
+  const currentCourse = courses.find(c => c.id === profile?.currentCourseId);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -65,7 +67,7 @@ export default function Dashboard() {
     );
   }
 
-  if (!profile?.currentCourseId) {
+  if (!profile?.currentCourseId || (courses.length > 0 && !currentCourse)) {
     return (
       <div className="max-w-3xl mx-auto text-center pb-20 pt-8">
         <div className="mb-12">
@@ -109,7 +111,6 @@ export default function Dashboard() {
 
   const today = new Date().toISOString().split('T')[0];
   const practicedToday = profile.lastPracticeDate?.startsWith(today);
-  const currentCourse = courses.find(c => c.id === profile.currentCourseId);
 
   return (
     <div className="max-w-2xl mx-auto pb-20">
@@ -201,50 +202,86 @@ export default function Dashboard() {
 
       <div className="space-y-12">
         {units.map((unit, i) => {
-          const unitLessons = lessons.filter(l => l.unitId === unit.id);
+          const unitLessons = lessons.filter(l => l.unitId === unit.id || l.unitid === unit.id);
           return (
             <div key={unit.id} className="relative">
-              <div className="bg-green-500 text-white p-6 rounded-2xl mb-8 shadow-[0_4px_0_rgb(21,128,61)] border-2 border-green-600">
-                <h2 className="text-2xl font-extrabold mb-2 tracking-tight">{unit.title}</h2>
-                <p className="font-medium opacity-90">{unit.description}</p>
+              <div className="bg-green-500 text-white p-6 rounded-2xl mb-8 shadow-[0_4px_0_rgb(21,128,61)] border-2 border-green-600 flex justify-between items-center group hover:bg-green-400 transition-colors cursor-pointer">
+                <div className="pr-4">
+                  <h2 className="text-2xl font-extrabold mb-2 tracking-tight">{unit.title}</h2>
+                  <p className="font-medium opacity-90 text-green-50">{unit.description}</p>
+                </div>
+                <div className="hidden sm:flex w-14 h-14 bg-white/20 rounded-2xl flex-shrink-0 items-center justify-center group-hover:scale-110 transition-transform">
+                  <Star className="w-8 h-8 fill-white" />
+                </div>
               </div>
               
-              <div className="flex flex-col items-center gap-8 py-4">
+              <div className="flex flex-col items-center py-8 pb-16 relative">
+                {/* SVG path connecting nodes */}
+                <svg className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none stroke-current" preserveAspectRatio="none">
+                  {unitLessons.map((lesson, index) => {
+                    if (index === 0) return null;
+                    const prevOffset = Math.sin((index - 1) * 1.5) * 40;
+                    const currOffset = Math.sin(index * 1.5) * 40;
+                    
+                    // We know the vertical spacing is predictable without flex gap if we use explicit heights
+                    // But we are in flex-col. Let's rely on standard heights.
+                    // Each node is 80px high, and we have a gap of 20 (80px) but we removed gap and added mb.
+                    return null;
+                  })}
+                </svg>
+                
                 {unitLessons.map((lesson, index) => {
                   const isCompleted = profile?.completedLessons?.includes(lesson.id);
-                  // Determine if unlocked (first lesson or previous is completed)
                   const prevLesson = index > 0 ? unitLessons[index - 1] : null;
                   const isUnlocked = isCompleted || !prevLesson || profile?.completedLessons?.includes(prevLesson.id);
-                  
-                  // Calculate offset for zig-zag pattern
                   const offset = Math.sin(index * 1.5) * 40;
 
                   return (
                     <div 
                       key={lesson.id} 
-                      className="relative"
-                      style={{ transform: `translateX(${offset}px)` }}
+                      className="relative z-10 w-full flex justify-center"
+                      style={{ marginTop: index === 0 ? '0' : '5rem' }}
                     >
-                      <button
-                        onClick={() => isUnlocked && navigate(`/app/lesson/${lesson.id}`)}
-                        disabled={!isUnlocked}
-                        className={`w-20 h-20 rounded-full flex items-center justify-center border-b-8 transition-all relative ${
-                          isCompleted 
-                            ? 'bg-yellow-400 border-yellow-500 text-white' 
-                            : isUnlocked 
-                              ? 'bg-green-500 border-green-600 text-white hover:bg-green-400 hover:translate-y-1 hover:border-b-4' 
-                              : 'bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed'
-                        }`}
-                      >
-                        {isCompleted ? <CheckCircle className="w-10 h-10" /> : isUnlocked ? <Star className="w-10 h-10" /> : <Lock className="w-8 h-8" />}
-                      </button>
+                      {/* Line to previous level */}
+                      {index > 0 && (
+                        <svg className="absolute bottom-full left-0 w-full h-20 -z-10 pointer-events-none" style={{ top: '-5rem' }}>
+                          <path 
+                            d={`M 50% 100% Q 50% 50% ${50 + Math.sin((index - 1) * 1.5) * 10 - Math.sin(index * 1.5) * 10}% 0%`}
+                            className={`stroke-[8px] fill-none ${
+                               profile?.completedLessons?.includes(unitLessons[index-1].id) 
+                                 ? 'stroke-yellow-400' 
+                                 : 'stroke-slate-200'
+                            }`}
+                            style={{ 
+                              transform: `translateX(${offset}px)`,
+                              transformOrigin: 'bottom center'
+                            }}
+                          />
+                        </svg>
+                      )}
                       
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 whitespace-nowrap">
-                        <div className={`px-3 py-1 rounded-lg font-bold text-sm ${
-                          isCompleted ? 'bg-yellow-100 text-yellow-700' : 
-                          isUnlocked ? 'bg-slate-100 text-slate-700' : 'text-slate-400'
-                        }`}>
-                          {lesson.title}
+                      <div className="relative" style={{ transform: `translateX(${offset}px)` }}>
+                        <button
+                          onClick={() => isUnlocked && navigate(`/app/lesson/${lesson.id}`)}
+                          disabled={!isUnlocked}
+                          className={`w-20 h-20 rounded-full flex items-center justify-center border-b-8 transition-all relative z-10 ${
+                            isCompleted 
+                              ? 'bg-yellow-400 border-yellow-500 text-white' 
+                              : isUnlocked 
+                                ? 'bg-green-500 border-green-600 text-white hover:bg-green-400 hover:translate-y-1 hover:border-b-4' 
+                                : 'bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed'
+                          }`}
+                        >
+                          {isCompleted ? <CheckCircle className="w-10 h-10" /> : isUnlocked ? <Star className="w-10 h-10" /> : <Lock className="w-8 h-8" />}
+                        </button>
+                        
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 z-20 flex flex-col items-center">
+                          <div className={`px-3 py-2 rounded-xl font-bold text-xs text-center border shadow-sm ${
+                            isCompleted ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 
+                            isUnlocked ? 'bg-white text-slate-700 border-slate-200 shadow-[0_2px_0_rgb(226,232,240)]' : 'bg-slate-50 text-slate-400 border-slate-200'
+                          }`}>
+                            {lesson.title}
+                          </div>
                         </div>
                       </div>
                     </div>
