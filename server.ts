@@ -33,7 +33,7 @@ app.use(async (req, res, next) => {
       next();
     } catch (err) {
       console.error("DB Init Error:", err);
-      next(err);
+      res.status(500).json({ error: "Database Initialization Error", details: String(err) });
     }
   } else {
     next();
@@ -67,12 +67,12 @@ app.post('/api/auth/register', async (req, res) => {
     // Auto-assign admin if email matched
     const role = email === 'lilscope01@gmail.com' ? 'admin' : 'user';
     
-    db.prepare(`
+    await db.prepare(`
       INSERT INTO users (id, email, password, displayName, role)
       VALUES (?, ?, ?, ?, ?)
     `).run(id, email, hashedPassword, email.split('@')[0], role);
     
-    db.prepare('INSERT INTO userProgress (userId, completedLessons) VALUES (?, ?)')
+    await db.prepare('INSERT INTO userProgress (userId, completedLessons) VALUES (?, ?)')
       .run(id, '[]');
 
     const authToken = jwt.sign({ id, email, role }, JWT_SECRET, { expiresIn: '7d' });
@@ -127,11 +127,25 @@ app.post('/api/auth/logout', async (req, res) => {
 
 // User routes
 app.get('/api/user/me', authenticateToken, async (req: any, res) => {
-  const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id) as any;
-  if (!user) return res.status(404).json({ error: 'User not found' });
-  const progress = await db.prepare('SELECT * FROM userProgress WHERE userId = ?').get(user.id) as any;
-  user.completedLessons = JSON.parse(progress.completedLessons);
-  res.json(user);
+  try {
+    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id) as any;
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const progress = await db.prepare('SELECT * FROM userProgress WHERE userId = ?').get(user.id) as any;
+    
+    if (progress) {
+      user.completedLessons = JSON.parse(progress.completedLessons || '[]');
+      user.xp = progress.xp || 0;
+      user.courseId = progress.courseId;
+    } else {
+      user.completedLessons = [];
+      user.xp = 0;
+    }
+    
+    res.json(user);
+  } catch (err: any) {
+    console.error("GET /api/user/me error:", err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 app.post('/api/user/course', authenticateToken, async (req: any, res) => {
@@ -141,48 +155,52 @@ app.post('/api/user/course', authenticateToken, async (req: any, res) => {
 });
 
 app.post('/api/user/progress', authenticateToken, async (req: any, res) => {
-  const { lessonId, xpReward, isNewDay, gemsReward, heartsCost } = req.body;
-  
-  const progress = await db.prepare('SELECT * FROM userProgress WHERE userId = ?').get(req.user.id) as any;
-  const completed = JSON.parse(progress.completedLessons);
-  if (lessonId && !completed.includes(lessonId)) {
-    completed.push(lessonId);
-  }
-  
-  db.prepare('UPDATE userProgress SET completedLessons = ? WHERE userId = ?')
-    .run(JSON.stringify(completed), req.user.id);
-
-  const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id) as any;
-  let newXp = user.xp + (xpReward || 0);
-  let newStreak = user.streak;
-  let newGems = (user.gems || 0) + (gemsReward || 0);
-  let newHearts = Math.max(0, (user.hearts || 5) - (heartsCost || 0));
-  
-  const today = new Date().toISOString().split('T')[0];
-  const lastPractice = user.lastPracticeDate ? user.lastPracticeDate.split('T')[0] : null;
-
-  if (lastPractice !== today && xpReward > 0) {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-    
-    if (lastPractice === yesterdayStr) {
-      newStreak += 1;
-    } else {
-      newStreak = 1;
-    }
-  }
-
-  // Handle SQLite missing columns fallback if they don't exist yet
   try {
-    db.prepare('UPDATE users SET xp = ?, streak = ?, lastPracticeDate = ?, gems = ?, hearts = ? WHERE id = ?')
-      .run(newXp, newStreak, req.body.xpReward > 0 ? new Date().toISOString() : user.lastPracticeDate, newGems, newHearts, req.user.id);
-  } catch (e) {
-    db.prepare('UPDATE users SET xp = ?, streak = ?, lastPracticeDate = ? WHERE id = ?')
-      .run(newXp, newStreak, req.body.xpReward > 0 ? new Date().toISOString() : user.lastPracticeDate, req.user.id);
-  }
+    const { lessonId, xpReward, isNewDay, gemsReward, heartsCost } = req.body;
+    
+    const progress = await db.prepare('SELECT * FROM userProgress WHERE userId = ?').get(req.user.id) as any;
+    const completed = progress && progress.completedLessons ? JSON.parse(progress.completedLessons) : [];
+    if (lessonId && !completed.includes(lessonId)) {
+      completed.push(lessonId);
+    }
+    
+    await db.prepare('UPDATE userProgress SET completedLessons = ? WHERE userId = ?')
+      .run(JSON.stringify(completed), req.user.id);
 
-  res.json({ success: true, newHearts });
+    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id) as any;
+    let newXp = (user.xp || 0) + (xpReward || 0);
+    let newStreak = user.streak || 0;
+    let newGems = (user.gems || 0) + (gemsReward || 0);
+    let newHearts = Math.max(0, (user.hearts || 5) - (heartsCost || 0));
+    
+    const today = new Date().toISOString().split('T')[0];
+    const lastPractice = user.lastPracticeDate ? user.lastPracticeDate.split('T')[0] : null;
+
+    if (lastPractice !== today && xpReward > 0) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      
+      if (lastPractice === yesterdayStr) {
+        newStreak += 1;
+      } else {
+        newStreak = 1;
+      }
+    }
+
+    try {
+      await db.prepare('UPDATE users SET xp = ?, streak = ?, lastPracticeDate = ?, gems = ?, hearts = ? WHERE id = ?')
+        .run(newXp, newStreak, req.body.xpReward > 0 ? new Date().toISOString() : user.lastPracticeDate, newGems, newHearts, req.user.id);
+    } catch (e) {
+      await db.prepare('UPDATE users SET xp = ?, streak = ?, lastPracticeDate = ? WHERE id = ?')
+        .run(newXp, newStreak, req.body.xpReward > 0 ? new Date().toISOString() : user.lastPracticeDate, req.user.id);
+    }
+
+    res.json({ success: true, newHearts });
+  } catch (err: any) {
+    console.error("POST /api/user/progress error:", err);
+    res.status(500).json({ error: 'Failed to update progress' });
+  }
 });
 
 // Data routes
@@ -195,7 +213,7 @@ app.post('/api/courses', authenticateToken, async (req: any, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
   const id = crypto.randomUUID();
   const { title, description, language, icon } = req.body;
-  db.prepare('INSERT INTO courses (id, title, description, language, icon) VALUES (?, ?, ?, ?, ?)')
+  await db.prepare('INSERT INTO courses (id, title, description, language, icon) VALUES (?, ?, ?, ?, ?)')
     .run(id, title, description, language, icon);
   res.json({ id });
 });
@@ -209,7 +227,7 @@ app.post('/api/units', authenticateToken, async (req: any, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
   const id = crypto.randomUUID();
   const { courseId, title, description, order } = req.body;
-  db.prepare('INSERT INTO units (id, courseId, title, description, "order") VALUES (?, ?, ?, ?, ?)')
+  await db.prepare('INSERT INTO units (id, courseId, title, description, "order") VALUES (?, ?, ?, ?, ?)')
     .run(id, courseId, title, description, order);
   res.json({ id });
 });
@@ -228,7 +246,7 @@ app.post('/api/lessons', authenticateToken, async (req: any, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
   const id = crypto.randomUUID();
   const { unitId, title, topic, order, xpReward } = req.body;
-  db.prepare('INSERT INTO lessons (id, unitId, title, topic, "order", xpReward) VALUES (?, ?, ?, ?, ?, ?)')
+  await db.prepare('INSERT INTO lessons (id, unitId, title, topic, "order", xpReward) VALUES (?, ?, ?, ?, ?, ?)')
     .run(id, unitId, title, topic, order, xpReward);
   res.json({ id });
 });
@@ -259,7 +277,7 @@ app.post('/api/seed', authenticateToken, async (req: any, res) => {
 
     for (const prog of fuoyePrograms) {
       const id = crypto.randomUUID();
-      stmt.run(id, prog.title, prog.description, prog.language, prog.icon);
+      await stmt.run(id, prog.title, prog.description, prog.language, prog.icon);
       if (prog.title === 'Computer Science') {
         cscCourseId = id;
       }
@@ -404,8 +422,9 @@ app.post('/api/seed', authenticateToken, async (req: any, res) => {
 });
 
 async function seedDatabaseIfNeeded() {
-  const courseCount = await db.prepare('SELECT COUNT(*) as count FROM courses').get() as { count: number };
-  if (courseCount.count === 0) {
+  const result = await db.prepare('SELECT COUNT(*) as count FROM courses').get() as { count: string | number };
+  const count = Number(result?.count || 0);
+  if (count === 0) {
     console.log('Seeding initial programs...');
     
     const fuoyePrograms = [
@@ -419,10 +438,10 @@ async function seedDatabaseIfNeeded() {
     let cscCourseId = '';
     const stmt = db.prepare('INSERT INTO courses (id, title, description, language, icon) VALUES (?, ?, ?, ?, ?)');
     
-    db.transaction(async () => {
+    await db.transaction(async () => {
       for (const prog of fuoyePrograms) {
         const id = crypto.randomUUID();
-        stmt.run(id, prog.title, prog.description, prog.language, prog.icon);
+        await stmt.run(id, prog.title, prog.description, prog.language, prog.icon);
         if (prog.title === 'Computer Science') {
           cscCourseId = id;
         }
@@ -549,7 +568,7 @@ async function seedDatabaseIfNeeded() {
         }
       ];
 
-      db.transaction(async () => {
+      await db.transaction(async () => {
         for (const sem of curriculum) {
           const unitId = crypto.randomUUID();
           await db.prepare('INSERT INTO units (id, courseId, title, description, "order") VALUES (?, ?, ?, ?, ?)')
