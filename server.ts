@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-import db from './server-db';
+import db, { initDb } from './server-db';
 import path from 'path';
 
 // Load env vars if using dotenv
@@ -15,8 +15,30 @@ const app = express();
 const PORT = 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
+let dbInitialized = false;
+async function ensureDbInitialized() {
+  if (dbInitialized) return;
+  await initDb();
+  await seedDatabaseIfNeeded();
+  dbInitialized = true;
+}
+
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    try {
+      await ensureDbInitialized();
+      next();
+    } catch (err) {
+      console.error("DB Init Error:", err);
+      next(err);
+    }
+  } else {
+    next();
+  }
+});
 
 // Auth Middleware
 const authenticateToken = (req: any, res: any, next: any) => {
@@ -36,7 +58,7 @@ app.post('/api/auth/register', async (req, res) => {
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
   try {
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    const existing = await db.prepare('SELECT id FROM users WHERE email = ?').get(email);
     if (existing) return res.status(400).json({ error: 'Email already in use' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -73,7 +95,7 @@ app.post('/api/auth/login', async (req, res) => {
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
   try {
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as any;
+    const user = await db.prepare('SELECT * FROM users WHERE email = ?').get(email) as any;
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
     const match = await bcrypt.compare(password, user.password || '');
@@ -94,7 +116,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-app.post('/api/auth/logout', (req, res) => {
+app.post('/api/auth/logout', async (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     secure: true,
@@ -104,24 +126,24 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 // User routes
-app.get('/api/user/me', authenticateToken, (req: any, res) => {
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id) as any;
+app.get('/api/user/me', authenticateToken, async (req: any, res) => {
+  const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id) as any;
   if (!user) return res.status(404).json({ error: 'User not found' });
-  const progress = db.prepare('SELECT * FROM userProgress WHERE userId = ?').get(user.id) as any;
+  const progress = await db.prepare('SELECT * FROM userProgress WHERE userId = ?').get(user.id) as any;
   user.completedLessons = JSON.parse(progress.completedLessons);
   res.json(user);
 });
 
-app.post('/api/user/course', authenticateToken, (req: any, res) => {
+app.post('/api/user/course', authenticateToken, async (req: any, res) => {
   const { courseId } = req.body;
-  db.prepare('UPDATE users SET currentCourseId = ? WHERE id = ?').run(courseId, req.user.id);
+  await db.prepare('UPDATE users SET currentCourseId = ? WHERE id = ?').run(courseId, req.user.id);
   res.json({ success: true });
 });
 
-app.post('/api/user/progress', authenticateToken, (req: any, res) => {
+app.post('/api/user/progress', authenticateToken, async (req: any, res) => {
   const { lessonId, xpReward, isNewDay, gemsReward, heartsCost } = req.body;
   
-  const progress = db.prepare('SELECT * FROM userProgress WHERE userId = ?').get(req.user.id) as any;
+  const progress = await db.prepare('SELECT * FROM userProgress WHERE userId = ?').get(req.user.id) as any;
   const completed = JSON.parse(progress.completedLessons);
   if (lessonId && !completed.includes(lessonId)) {
     completed.push(lessonId);
@@ -130,7 +152,7 @@ app.post('/api/user/progress', authenticateToken, (req: any, res) => {
   db.prepare('UPDATE userProgress SET completedLessons = ? WHERE userId = ?')
     .run(JSON.stringify(completed), req.user.id);
 
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id) as any;
+  const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id) as any;
   let newXp = user.xp + (xpReward || 0);
   let newStreak = user.streak;
   let newGems = (user.gems || 0) + (gemsReward || 0);
@@ -164,12 +186,12 @@ app.post('/api/user/progress', authenticateToken, (req: any, res) => {
 });
 
 // Data routes
-app.get('/api/courses', (req, res) => {
-  const courses = db.prepare('SELECT * FROM courses').all();
+app.get('/api/courses', async (req, res) => {
+  const courses = await db.prepare('SELECT * FROM courses').all();
   res.json(courses);
 });
 
-app.post('/api/courses', authenticateToken, (req: any, res) => {
+app.post('/api/courses', authenticateToken, async (req: any, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
   const id = crypto.randomUUID();
   const { title, description, language, icon } = req.body;
@@ -178,12 +200,12 @@ app.post('/api/courses', authenticateToken, (req: any, res) => {
   res.json({ id });
 });
 
-app.get('/api/units', (req, res) => {
-  const units = db.prepare('SELECT * FROM units ORDER BY "order" ASC').all();
+app.get('/api/units', async (req, res) => {
+  const units = await db.prepare('SELECT * FROM units ORDER BY "order" ASC').all();
   res.json(units);
 });
 
-app.post('/api/units', authenticateToken, (req: any, res) => {
+app.post('/api/units', authenticateToken, async (req: any, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
   const id = crypto.randomUUID();
   const { courseId, title, description, order } = req.body;
@@ -192,17 +214,17 @@ app.post('/api/units', authenticateToken, (req: any, res) => {
   res.json({ id });
 });
 
-app.get('/api/lessons', (req, res) => {
-  const lessons = db.prepare('SELECT * FROM lessons ORDER BY "order" ASC').all();
+app.get('/api/lessons', async (req, res) => {
+  const lessons = await db.prepare('SELECT * FROM lessons ORDER BY "order" ASC').all();
   res.json(lessons);
 });
 
-app.get('/api/lessons/:id', (req, res) => {
-  const lesson = db.prepare('SELECT * FROM lessons WHERE id = ?').get(req.params.id);
+app.get('/api/lessons/:id', async (req, res) => {
+  const lesson = await db.prepare('SELECT * FROM lessons WHERE id = ?').get(req.params.id);
   res.json(lesson || null);
 });
 
-app.post('/api/lessons', authenticateToken, (req: any, res) => {
+app.post('/api/lessons', authenticateToken, async (req: any, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
   const id = crypto.randomUUID();
   const { unitId, title, topic, order, xpReward } = req.body;
@@ -211,12 +233,12 @@ app.post('/api/lessons', authenticateToken, (req: any, res) => {
   res.json({ id });
 });
 
-app.get('/api/leaderboard', (req, res) => {
-  const leaders = db.prepare('SELECT id, displayName, photoURL, xp, streak FROM users ORDER BY xp DESC LIMIT 50').all();
+app.get('/api/leaderboard', async (req, res) => {
+  const leaders = await db.prepare('SELECT id, displayName, photoURL, xp, streak FROM users ORDER BY xp DESC LIMIT 50').all();
   res.json(leaders);
 });
 
-app.post('/api/seed', authenticateToken, (req: any, res) => {
+app.post('/api/seed', authenticateToken, async (req: any, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
   
   const fuoyePrograms = [
@@ -230,10 +252,10 @@ app.post('/api/seed', authenticateToken, (req: any, res) => {
   let cscCourseId = '';
   
   const stmt = db.prepare('INSERT INTO courses (id, title, description, language, icon) VALUES (?, ?, ?, ?, ?)');
-  const transactionalSeed = db.transaction(() => {
-    db.prepare('DELETE FROM lessons').run();
-    db.prepare('DELETE FROM units').run();
-    db.prepare('DELETE FROM courses').run();
+  const transactionalSeed = db.transaction(async () => {
+    await db.prepare('DELETE FROM lessons').run();
+    await db.prepare('DELETE FROM units').run();
+    await db.prepare('DELETE FROM courses').run();
 
     for (const prog of fuoyePrograms) {
       const id = crypto.randomUUID();
@@ -244,7 +266,7 @@ app.post('/api/seed', authenticateToken, (req: any, res) => {
     }
   });
   
-  transactionalSeed();
+  await transactionalSeed();
 
   if (cscCourseId) {
     const curriculum = [
@@ -366,23 +388,23 @@ app.post('/api/seed', authenticateToken, (req: any, res) => {
       }
     ];
 
-    curriculum.forEach(sem => {
+    for (const sem of curriculum) {
       const unitId = crypto.randomUUID();
-      db.prepare('INSERT INTO units (id, courseId, title, description, "order") VALUES (?, ?, ?, ?, ?)')
+      await db.prepare('INSERT INTO units (id, courseId, title, description, "order") VALUES (?, ?, ?, ?, ?)')
         .run(unitId, cscCourseId, sem.unit, sem.desc, sem.order);
 
-      sem.courses.forEach((c, index) => {
-        db.prepare('INSERT INTO lessons (id, unitId, title, topic, "order", xpReward) VALUES (?, ?, ?, ?, ?, ?)')
+      for (let index = 0; index < sem.courses.length; index++) { const c = sem.courses[index];
+        await db.prepare('INSERT INTO lessons (id, unitId, title, topic, "order", xpReward) VALUES (?, ?, ?, ?, ?, ?)')
           .run(crypto.randomUUID(), unitId, `${c.code} - ${c.title}`, c.topics, index + 1, 20);
-      });
-    });
+      }
+    }
   }
 
   res.json({ success: true });
 });
 
-function seedDatabaseIfNeeded() {
-  const courseCount = db.prepare('SELECT COUNT(*) as count FROM courses').get() as { count: number };
+async function seedDatabaseIfNeeded() {
+  const courseCount = await db.prepare('SELECT COUNT(*) as count FROM courses').get() as { count: number };
   if (courseCount.count === 0) {
     console.log('Seeding initial programs...');
     
@@ -397,7 +419,7 @@ function seedDatabaseIfNeeded() {
     let cscCourseId = '';
     const stmt = db.prepare('INSERT INTO courses (id, title, description, language, icon) VALUES (?, ?, ?, ?, ?)');
     
-    db.transaction(() => {
+    db.transaction(async () => {
       for (const prog of fuoyePrograms) {
         const id = crypto.randomUUID();
         stmt.run(id, prog.title, prog.description, prog.language, prog.icon);
@@ -527,24 +549,21 @@ function seedDatabaseIfNeeded() {
         }
       ];
 
-      db.transaction(() => {
-        curriculum.forEach(sem => {
+      db.transaction(async () => {
+        for (const sem of curriculum) {
           const unitId = crypto.randomUUID();
-          db.prepare('INSERT INTO units (id, courseId, title, description, "order") VALUES (?, ?, ?, ?, ?)')
+          await db.prepare('INSERT INTO units (id, courseId, title, description, "order") VALUES (?, ?, ?, ?, ?)')
             .run(unitId, cscCourseId, sem.unit, sem.desc, sem.order);
     
-          sem.courses.forEach((c, index) => {
-            db.prepare('INSERT INTO lessons (id, unitId, title, topic, "order", xpReward) VALUES (?, ?, ?, ?, ?, ?)')
+          for (let index = 0; index < sem.courses.length; index++) { const c = sem.courses[index];
+            await db.prepare('INSERT INTO lessons (id, unitId, title, topic, "order", xpReward) VALUES (?, ?, ?, ?, ?, ?)')
               .run(crypto.randomUUID(), unitId, `${c.code} - ${c.title}`, c.topics, index + 1, 20);
-          });
-        });
+          }
+        }
       })();
     }
   }
 }
-
-// On cold starts (Vercel), we ensure DB is seeded
-seedDatabaseIfNeeded();
 
 async function startServer() {
   // Vite middleware for development
@@ -557,7 +576,7 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.get('*', async (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
